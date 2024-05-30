@@ -222,6 +222,7 @@ export default function QAndA() {
       type: "actions",
       headerName: "Actions",
       width: 120,
+
       cellClassName: "actions",
       getActions: ({ id }) => {
         const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
@@ -304,25 +305,33 @@ export default function QAndA() {
           </Grid>
         </Grid>
         <Box>
-          <Grid padding={3} container justifyContent={"space-between"} gap={1}>
+          <Grid container padding={3} justifyContent={"space-between"} gap={1}>
             <Grid item md={3}>
               <Grid container>
                 <Grid md={6}>
-                  <Typography variant={"h6"}>Take it online.</Typography>
+                  <Typography fontWeight={600}>Take it online.</Typography>
                 </Grid>
                 <Grid md={6}>
                   <Button variant={"contained"}>Start Test</Button>
                 </Grid>
               </Grid>
             </Grid>
-            <Grid md={6}>
-              <Typography variant={"h6"}>
-                Supplemental Scoring Test Review Questions And Answers
-              </Typography>
+            <Grid md={3}>
+              <Box>
+                <Typography fontWeight={600}>
+                  Supplemental Scoring Test Review Questions And Answers
+                </Typography>
+              </Box>
+              <Box display={"flex"} justifyContent={"space-between"}>
+                <Button variant={"contained"}>Generate</Button>
+                <Button variant={"contained"}>Clear</Button>
+              </Box>
             </Grid>
-            <Grid>
-              <Button variant={"contained"}>Generate</Button>
-              <Button variant={"contained"}>Clear</Button>
+            <Grid md={3}>
+              <Box display={"flex"} justifyContent={"space-between"}>
+                <Button variant={"contained"}>Questions</Button>
+                <Button variant={"contained"}>Answers</Button>
+              </Box>
             </Grid>
           </Grid>
         </Box>

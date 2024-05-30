@@ -268,23 +268,37 @@ export default function FormPropsTextFields() {
             </FormControl>
           </Grid>
 
-          <Grid>
-            <Typography variant={"h6"}>Profile Picture</Typography>
+          <Grid md={4}>
+            <Grid container alignItems={"center"}>
+              <Grid md={6}>
+                <Typography variant={"h6"}>Profile Picture</Typography>
+              </Grid>
+              <Grid md={6}>
+                <Box
+                  display={"flex"}
+                  flexDirection={"column"}
+                  justifyContent={"center"}
+                >
+                  <Avatar
+                    style={{
+                      alignSelf: "center",
+                    }}
+                    src="/broken-image.jpg"
+                  />
+                  <Button variant="outlined">Upload</Button>
+                  <Button variant="text">Remove Image</Button>
+                </Box>
+              </Grid>
+            </Grid>
           </Grid>
 
-          <Grid>
-            <Avatar src="/broken-image.jpg" />
-            <Button variant="outlined">Upload</Button>
-            <Button variant="text">Remove Image</Button>
-          </Grid>
-
-          <Grid>
-            <Button variant="contained">Submit</Button>
-          </Grid>
-          <Grid>
-            <Button variant="contained" color="success">
-              Clear
-            </Button>
+          <Grid md={4}>
+            <Box display={"flex"} justifyContent={"space-between"}>
+              <Button variant="contained">Submit</Button>
+              <Button variant="contained" color="success">
+                Clear
+              </Button>
+            </Box>
           </Grid>
         </Grid>
       </Paper>
