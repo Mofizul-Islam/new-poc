@@ -63,7 +63,7 @@ export default function FormPropsTextFields() {
       noValidate
       autoComplete="off"
     >
-      <div>Edit Profile</div>
+      <strong>Edit Profile</strong>
       <Paper>
         <Grid
           container

@@ -8,17 +8,15 @@ import {
   Paper,
   Box,
   Typography,
+  Button,
 } from "@mui/material";
-import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
 import SaveIcon from "@mui/icons-material/Save";
-import CancelIcon from "@mui/icons-material/Close";
 import {
   GridRowModes,
   DataGrid,
-  GridToolbarContainer,
   GridActionsCellItem,
   GridRowEditStopReasons,
 } from "@mui/x-data-grid";
@@ -41,6 +39,7 @@ const initialRows = [
     action: "delete/modify",
     width: 220,
   },
+
   {
     id: "2",
     questionAnswers: "supplimentScore.pdf",
@@ -91,74 +90,10 @@ const initialRows = [
   },
 ];
 
-function EditToolbar(props) {
-  const { setRows, setRowModesModel } = props;
-
-  const handleClick = () => {
-    const id = id++;
-    setRows((oldRows) => [...oldRows, { id, name: "", age: "", isNew: true }]);
-    setRowModesModel((oldModel) => ({
-      ...oldModel,
-      [id]: { mode: GridRowModes.Edit, fieldToFocus: "name" },
-    }));
-  };
-
-  return (
-    <GridToolbarContainer>
-      <Button color="primary" startIcon={<AddIcon />} onClick={handleClick}>
-        Add record
-      </Button>
-    </GridToolbarContainer>
-  );
-}
-
 export default function QAndA() {
   const [subject, setSubject] = React.useState("");
   const [grade, setGrade] = React.useState("");
   const [test, setTest] = React.useState("");
-
-  const [rows, setRows] = React.useState(initialRows);
-  const [rowModesModel, setRowModesModel] = React.useState({});
-
-  const handleRowEditStop = (params, event) => {
-    if (params.reason === GridRowEditStopReasons.rowFocusOut) {
-      event.defaultMuiPrevented = true;
-    }
-  };
-
-  const handleEditClick = (id) => () => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
-  };
-
-  const handleSaveClick = (id) => () => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
-  };
-
-  const handleDeleteClick = (id) => () => {
-    setRows(rows.filter((row) => row.id !== id));
-  };
-
-  const handleCancelClick = (id) => () => {
-    setRowModesModel({
-      ...rowModesModel,
-      [id]: { mode: GridRowModes.View, ignoreModifications: true },
-    });
-
-    const editedRow = rows.find((row) => row.id === id);
-    if (editedRow.isNew) {
-      setRows(rows.filter((row) => row.id !== id));
-    }
-  };
-
-  const processRowUpdate = (newRow) => {
-    const updatedRow = { ...newRow, isNew: false };
-    setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
-    return updatedRow;
-  };
-
-  const handleRowModesModelChange = (newRowModesModel) => {
-    setRowModesModel(newRowModesModel);
-  };
 
   const handleSubjectChange = (event) => {
     setSubject(event.target.value);
@@ -171,84 +106,6 @@ export default function QAndA() {
   const handleTestChange = (event) => {
     setTest(event.target.value);
   };
-
-  const columns = [
-    {
-      field: "questionAnswers",
-      headerName: "Questions And Answers ",
-      width: 180,
-      editable: true,
-    },
-    {
-      field: "type",
-      headerName: "Type",
-      type: "Pdf",
-      width: 120,
-      align: "left",
-      headerAlign: "left",
-      editable: true,
-    },
-    {
-      field: "generateDate",
-      headerName: "Generate Date",
-      type: "date",
-      width: 120,
-      editable: true,
-    },
-    {
-      field: "subject",
-      headerName: "Subject",
-      width: 120,
-      editable: true,
-      type: "singleSelect",
-    },
-
-    {
-      field: "grade",
-      headerName: "Grade",
-      width: 120,
-      editable: true,
-      type: "singleSelect",
-    },
-    {
-      field: "test",
-      headerName: "Test",
-      width: 120,
-      editable: true,
-      type: "singleSelect",
-    },
-    {
-      field: "actions",
-      type: "actions",
-      headerName: "Actions",
-      width: 120,
-
-      cellClassName: "actions",
-      getActions: ({ id }) => {
-        const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
-
-        if (isInEditMode) {
-          return [];
-        }
-
-        return [
-          <GridActionsCellItem
-            icon={<EditIcon />}
-            label="Edit"
-            className="textPrimary"
-            onClick={handleEditClick(id)}
-            color="inherit"
-          />,
-          <GridActionsCellItem
-            icon={<DeleteIcon />}
-            label="Delete"
-            onClick={handleDeleteClick(id)}
-            color="inherit"
-          />,
-        ];
-      },
-    },
-  ];
 
   return (
     <Box display={"flex"} flexDirection={"column"} gap={4}>
@@ -350,19 +207,83 @@ export default function QAndA() {
           }}
         >
           <DataGrid
-            rows={rows}
-            columns={columns}
+            rows={initialRows}
+            columns={[
+              {
+                field: "questionAnswers",
+                headerName: "Questions And Answers ",
+                width: 180,
+                editable: true,
+              },
+              {
+                field: "type",
+                headerName: "Type",
+                type: "Pdf",
+                width: 120,
+                align: "left",
+                headerAlign: "left",
+                editable: true,
+              },
+              {
+                field: "generateDate",
+                headerName: "Generate Date",
+                type: "date",
+                width: 120,
+                editable: true,
+              },
+              {
+                field: "subject",
+                headerName: "Subject",
+                width: 120,
+                editable: true,
+                type: "singleSelect",
+              },
+              {
+                field: "grade",
+                headerName: "Grade",
+                width: 120,
+                editable: true,
+                type: "singleSelect",
+              },
+              {
+                field: "test",
+                headerName: "Test",
+                width: 120,
+                editable: true,
+                type: "singleSelect",
+              },
+              {
+                field: "actions",
+                type: "actions",
+                headerName: "Actions",
+                width: 230,
+
+                cellClassName: "actions",
+                getActions: ({ id }) => {
+                  return [
+                    <GridActionsCellItem
+                      icon={<EditIcon />}
+                      label="Edit"
+                      className="textPrimary"
+                      color="inherit"
+                    />,
+                    <GridActionsCellItem
+                      icon={<DeleteIcon />}
+                      label="Delete"
+                      color="inherit"
+                    />,
+                    <Button variant={"contained"}>Start Test</Button>,
+                  ];
+                },
+              },
+            ]}
             editMode="row"
-            rowModesModel={rowModesModel}
-            onRowModesModelChange={handleRowModesModelChange}
-            onRowEditStop={handleRowEditStop}
-            processRowUpdate={processRowUpdate}
-            slots={{
-              toolbar: EditToolbar,
+            onRowEditStop={(params, event) => {
+              if (params.reason === GridRowEditStopReasons.rowFocusOut) {
+                event.defaultMuiPrevented = true;
+              }
             }}
-            slotProps={{
-              toolbar: { setRows, setRowModesModel },
-            }}
+            processRowUpdate={(newRow) => newRow}
           />
         </Box>
       </Paper>
