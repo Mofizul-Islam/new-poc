@@ -138,9 +138,9 @@ export default function QAndA() {
                 label="Select Grade"
                 onChange={handleGradeChange}
               >
-                <MenuItem value="A">A</MenuItem>
-                <MenuItem value="B">B</MenuItem>
-                <MenuItem value="C">C</MenuItem>
+                <MenuItem value="9th">9th</MenuItem>
+                <MenuItem value="10th">10th</MenuItem>
+                <MenuItem value="11th">11th</MenuItem>
               </Select>
             </FormControl>
           </Grid>
@@ -207,19 +207,24 @@ export default function QAndA() {
           }}
         >
           <DataGrid
+            sx={{
+              ".MuiDataGrid-columnHeaderTitle": {
+                fontWeight: 600,
+              },
+            }}
             rows={initialRows}
             columns={[
               {
                 field: "questionAnswers",
                 headerName: "Questions And Answers ",
-                width: 180,
+                width: 190,
                 editable: true,
               },
               {
                 field: "type",
                 headerName: "Type",
                 type: "Pdf",
-                width: 120,
+                width: 100,
                 align: "left",
                 headerAlign: "left",
                 editable: true,
@@ -248,7 +253,7 @@ export default function QAndA() {
               {
                 field: "test",
                 headerName: "Test",
-                width: 120,
+                width: 150,
                 editable: true,
                 type: "singleSelect",
               },

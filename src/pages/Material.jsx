@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Grid,
   FormControl,
@@ -22,6 +22,7 @@ import {
   GridActionsCellItem,
   GridRowEditStopReasons,
 } from "@mui/x-data-grid";
+import axios from "axios";
 
 const roles = ["Market", "Finance", "Development"];
 const randomRole = () => {
@@ -34,68 +35,29 @@ export default function QAndA() {
   const [test, setTest] = useState("");
   const [selectedRow, setSelectedRow] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [rows, setRows] = useState([
-    {
-      id: "1",
-      questionAnswers: "SupplementScore1.pdf",
-      headerName: "SupplementScore1.pdf",
-      type: "pdf",
-      generateDate: new Date("10/12/2221"),
-      subject: "math",
-      grade: "A",
-      test: "sampletest1",
-      action: "delete/modify",
-      width: 220,
-    },
-    {
-      id: "2",
-      questionAnswers: "SupplementScore2.pdf",
-      headerName: "SupplementScore2.pdf",
-      type: "pdf",
-      generateDate: new Date("10/12/2221"),
-      subject: "math",
-      grade: "A",
-      test: "sampletest1",
-      action: "delete/modify",
-      width: 220,
-    },
-    {
-      id: "3",
-      questionAnswers: "SupplementScore3.pdf",
-      headerName: "SupplementScore3.pdf",
-      type: "pdf",
-      generateDate: new Date("10/12/2221"),
-      subject: "math",
-      grade: "A",
-      test: "sampletest1",
-      action: "delete/modify",
-      width: 220,
-    },
-    {
-      id: "4",
-      questionAnswers: "SupplementScore4.pdf",
-      headerName: "SupplementScore4.pdf",
-      type: "pdf",
-      generateDate: new Date("10/12/2221"),
-      subject: "math",
-      grade: "A",
-      test: "sampletest1",
-      action: "delete/modify",
-      width: 220,
-    },
-    {
-      id: "5",
-      questionAnswers: "SupplementScore5.pdf",
-      headerName: "SupplementScore5.pdf",
-      type: "pdf",
-      generateDate: new Date("10/12/2221"),
-      subject: "math",
-      grade: "A",
-      test: "sampletest1",
-      action: "delete/modify",
-      width: 220,
-    },
-  ]);
+  const [rows, setRows] = useState([]);
+  const [docTypes, setDocTypes] = useState([]);
+
+  const fetchDocuments = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/docs", {});
+      if (response.data) {
+        setRows(
+          response.data.file_list.map((f) => ({
+            ...f,
+            date: new Date(f.date),
+          }))
+        );
+        setDocTypes(response.data.doc_type);
+      }
+    } catch (error) {
+      console.error("Error fetching documents:", error);
+      alert("Error fetching documents");
+    }
+  };
+  useEffect(() => {
+    fetchDocuments();
+  }, []);
 
   const handleSubjectChange = (event) => {
     setSubject(event.target.value);
@@ -124,6 +86,49 @@ export default function QAndA() {
 
   const handleDeleteCancel = () => {
     setDeleteDialogOpen(false);
+  };
+
+  const start_test = async (doc_id) => {
+    const res = await axios.get(`http://localhost:5000/start-test/${doc_id}`);
+
+    console.log("RESPONSE", res.data);
+  };
+
+  const handleFileUpload = async (event) => {
+    const file = event.target.files[0];
+
+    if (!file) {
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("user_id", "123");
+    formData.append("doc_type", file.type);
+    formData.append("subject", subject);
+    formData.append("grade", grade);
+
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/doc-upload",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      fetchDocuments();
+      if (response.data.status === "ok") {
+        alert("File uploaded successfully");
+      } else {
+        alert("File upload failed: " + response.data.msg);
+      }
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      alert("Error uploading file");
+    }
   };
 
   return (
@@ -157,22 +162,15 @@ export default function QAndA() {
                 label="Select Grade"
                 onChange={handleGradeChange}
               >
-                <MenuItem value="A">A</MenuItem>
-                <MenuItem value="B">B</MenuItem>
-                <MenuItem value="C">C</MenuItem>
+                <MenuItem value="9th">9th</MenuItem>
+                <MenuItem value="10th">10th</MenuItem>
+                <MenuItem value="11th">11th</MenuItem>
               </Select>
             </FormControl>
-            <Box display="flex" mt={2}>
-              <Button variant="contained" style={{ marginRight: "100px" }}>
-                Save
-              </Button>
-              <Button variant="contained" style={{ marginLeft: "8px" }}>
-                Clear
-              </Button>
-            </Box>
           </Grid>
           <Grid item md={3}>
             <Button
+              style={{ marginLeft: "40px" }}
               component="label"
               role={undefined}
               variant="contained"
@@ -180,8 +178,21 @@ export default function QAndA() {
               startIcon={<CloudUploadIcon />}
             >
               Upload file
-              <input type="file" style={{ display: "none" }} />
+              <input
+                type="file"
+                style={{ display: "none", marginLeft: "40px" }}
+                onChange={handleFileUpload}
+              />
             </Button>
+
+            <Box display="flex" mt={2}>
+              <Button variant="contained" style={{ marginRight: "100px" }}>
+                Submit
+              </Button>
+              <Button variant="contained" style={{ marginLeft: "8px" }}>
+                Clear
+              </Button>
+            </Box>
           </Grid>
         </Grid>
       </Paper>
@@ -200,48 +211,46 @@ export default function QAndA() {
           }}
         >
           <DataGrid
+            sx={{
+              ".MuiDataGrid-columnHeaderTitle": {
+                fontWeight: 600,
+              },
+            }}
             rows={rows}
             columns={[
               {
-                field: "questionAnswers",
-                headerName: "Questions And Answers ",
-                width: 180,
+                field: "doc_name",
+                headerName: "Material Name",
+                width: 190,
                 editable: true,
               },
               {
-                field: "type",
+                field: "doc_type",
                 headerName: "Type",
                 type: "Pdf",
-                width: 120,
+                width: 160,
                 align: "left",
                 headerAlign: "left",
                 editable: true,
               },
               {
-                field: "generateDate",
-                headerName: "Generate Date",
+                field: "date",
+                headerName: "Uploaded Date",
                 type: "date",
-                width: 120,
+                width: 150,
                 editable: true,
               },
               {
                 field: "subject",
                 headerName: "Subject",
-                width: 120,
+                width: 150,
                 editable: true,
                 type: "singleSelect",
               },
               {
                 field: "grade",
                 headerName: "Grade",
-                width: 120,
-                editable: true,
-                type: "singleSelect",
-              },
-              {
-                field: "test",
-                headerName: "Test",
-                width: 120,
+                width: 150,
                 editable: true,
                 type: "singleSelect",
               },
@@ -264,6 +273,9 @@ export default function QAndA() {
                     color="inherit"
                     onClick={handleDeleteClick(rows.find((r) => r.id === id))}
                   />,
+                  <Button variant={"contained"} onClick={() => start_test(id)}>
+                    Start Test
+                  </Button>,
                 ],
               },
             ]}
