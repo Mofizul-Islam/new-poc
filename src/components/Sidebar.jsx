@@ -10,6 +10,7 @@ import Drawer from "@mui/material/Drawer";
 import React from "react";
 import { useLocation, useNavigate, useNavigation } from "react-router-dom";
 
+
 function Sidebar({ width }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -27,6 +28,7 @@ function Sidebar({ width }) {
       path: "/profile",
       label: "Profile",
     },
+   
   ];
   const drawer = (
     <div>

@@ -23,6 +23,7 @@ import {
   GridRowEditStopReasons,
 } from "@mui/x-data-grid";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const roles = ["Market", "Finance", "Development"];
 const randomRole = () => {
@@ -37,6 +38,9 @@ export default function QAndA() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [rows, setRows] = useState([]);
   const [docTypes, setDocTypes] = useState([]);
+  const [uploadedFile, setUploadedFile] = useState(null);
+
+  const navigate = useNavigate();
 
   const fetchDocuments = async () => {
     try {
@@ -55,6 +59,7 @@ export default function QAndA() {
       alert("Error fetching documents");
     }
   };
+
   useEffect(() => {
     fetchDocuments();
   }, []);
@@ -88,23 +93,37 @@ export default function QAndA() {
     setDeleteDialogOpen(false);
   };
 
+  const open_questions = (doc_id) => {
+    navigate(`/generatetest/${doc_id}`);
+  };
+
   const start_test = async (doc_id) => {
     const res = await axios.get(`http://localhost:5000/start-test/${doc_id}`);
+    open_questions(doc_id);
 
     console.log("RESPONSE", res.data);
   };
 
-  const handleFileUpload = async (event) => {
+  const handleFileUpload = (event) => {
     const file = event.target.files[0];
 
     if (!file) {
       return;
     }
 
+    setUploadedFile(file);
+  };
+
+  const handleSave = async () => {
+    if (!uploadedFile || !subject || !grade) {
+      alert("Please upload a file and fill in all fields.");
+      return;
+    }
+
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append("file", uploadedFile);
     formData.append("user_id", "123");
-    formData.append("doc_type", file.type);
+    formData.append("doc_type", uploadedFile.type);
     formData.append("subject", subject);
     formData.append("grade", grade);
 
@@ -119,9 +138,9 @@ export default function QAndA() {
         }
       );
 
-      fetchDocuments();
       if (response.data.status === "ok") {
         alert("File uploaded successfully");
+        fetchDocuments();
       } else {
         alert("File upload failed: " + response.data.msg);
       }
@@ -129,6 +148,12 @@ export default function QAndA() {
       console.error("Error uploading file:", error);
       alert("Error uploading file");
     }
+  };
+
+  const handleClear = () => {
+    setSubject("");
+    setGrade("");
+    setUploadedFile(null);
   };
 
   return (
@@ -186,10 +211,18 @@ export default function QAndA() {
             </Button>
 
             <Box display="flex" mt={2}>
-              <Button variant="contained" style={{ marginRight: "100px" }}>
-                Submit
+              <Button
+                variant="contained"
+                style={{ marginRight: "100px" }}
+                onClick={handleSave}
+              >
+                Save
               </Button>
-              <Button variant="contained" style={{ marginLeft: "8px" }}>
+              <Button
+                variant="contained"
+                style={{ marginLeft: "8px" }}
+                onClick={handleClear}
+              >
                 Clear
               </Button>
             </Box>
@@ -260,7 +293,7 @@ export default function QAndA() {
                 headerName: "Actions",
                 width: 230,
                 cellClassName: "actions",
-                getActions: ({ id }) => [
+                getActions: ({ id, row }) => [
                   <GridActionsCellItem
                     icon={<EditIcon />}
                     label="Edit"
@@ -273,9 +306,21 @@ export default function QAndA() {
                     color="inherit"
                     onClick={handleDeleteClick(rows.find((r) => r.id === id))}
                   />,
-                  <Button variant={"contained"} onClick={() => start_test(id)}>
-                    Start Test
-                  </Button>,
+                  row.test_generated ? (
+                    <Button
+                      variant={"contained"}
+                      onClick={() => open_questions(id)}
+                    >
+                      See Questions
+                    </Button>
+                  ) : (
+                    <Button
+                      variant={"contained"}
+                      onClick={() => start_test(id)}
+                    >
+                      Generate Test
+                    </Button>
+                  ),
                 ],
               },
             ]}

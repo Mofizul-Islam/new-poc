@@ -1,12 +1,15 @@
 import { AppBar, Box, Button, Grid } from "@mui/material";
 import "./App.css";
-import Login from "./pages/Login";
+import SignIn from "./pages/SignIn";
+import SignUp from "./pages/SignUp";
+
 import Profile from "./pages/Profile";
 import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
 import Sidebar from "./components/Sidebar";
 import Material from "./pages/Material";
 import QAndA from "./pages/QAndA";
 import Edit from "./pages/Edit";
+import GeneratedTest from "./pages/GeneratedTest";
 
 function Wrapper() {
   return (
@@ -35,12 +38,14 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/login" element={<Login />} />
+        <Route path="/signin" element={<SignIn />} />
+        <Route path="signup" element={<SignUp />} />
         <Route path="/" element={<Wrapper />}>
           <Route path="profile" element={<Profile />} />
           <Route path="material" element={<Material />} />
           <Route path="question-and-answers" element={<QAndA />} />
           <Route path="edit" element={<Edit />} />
+          <Route path="/generatetest/:doc_id" element={<GeneratedTest />} />
         </Route>
       </Routes>
     </BrowserRouter>
