@@ -17,6 +17,10 @@ function Sidebar({ width }) {
 
   const navRoutes = [
     {
+      path: "/profile",
+      label: "Profile",
+    },
+    {
       path: "/material",
       label: "Material",
     },
@@ -24,11 +28,6 @@ function Sidebar({ width }) {
       path: "/question-and-answers",
       label: "Question & Answers",
     },
-    {
-      path: "/profile",
-      label: "Profile",
-    },
-   
   ];
   const drawer = (
     <div>

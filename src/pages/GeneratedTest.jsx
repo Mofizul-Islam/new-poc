@@ -6,12 +6,18 @@ import TableCell, { tableCellClasses } from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
-import { Box } from "@mui/material";
+import { Box,} from "@mui/material";
 import Paper from "@mui/material/Paper";
 import axios from "axios";
-import { DataGrid } from "@mui/x-data-grid";
+import { DataGrid, } from "@mui/x-data-grid";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+
+const questionTypes = {
+  long_question: "Long Question",
+  short_question: "Short Question",
+  mcq: "MCQ",
+};
 
 export default function QAndA() {
   const { doc_id } = useParams();
@@ -40,30 +46,6 @@ export default function QAndA() {
     }
   }, [doc_id]);
 
-  const StyledTableCell = styled(TableCell)(({ theme }) => ({
-    [`&.${tableCellClasses.head}`]: {
-      backgroundColor: theme.palette.common.white,
-      color: theme.palette.common.black,
-    },
-    [`&.${tableCellClasses.body}`]: {
-      fontSize: 14,
-    },
-  }));
-
-  const StyledTableRow = styled(TableRow)(({ theme }) => ({
-    "&:nth-of-type(odd)": {
-      backgroundColor: theme.palette.action.hover,
-    },
-    // hide last border
-    "&:last-child td, &:last-child th": {
-      border: 0,
-    },
-  }));
-
-  function createData(name, calories, fat, carbs, protein) {
-    return { name, calories, fat, carbs, protein };
-  }
-
   return (
     <Paper>
       <Box
@@ -87,17 +69,29 @@ export default function QAndA() {
           rows={rows}
           columns={[
             {
-              field: "doc_id",
-              headerName: "Doc_id",
+              field: "type",
+              headerName: "Type",
               // width: 10,
               flex: 0.1,
+              renderCell: ({ row }) => {
+                return questionTypes[row.type];
+              },
               // width: 150,
-              editable: true,
-              type: "singleSelect",
+              // editable: true,
+              // type: "singleSelect",
             },
             {
               field: "question",
               headerName: "Question",
+              flex: 1,
+              minWidth: 300,
+              // width: 500,
+              // width: 190,
+              editable: true,
+            },
+            {
+              field: "answer",
+              headerName: "Answer",
               flex: 1,
               minWidth: 300,
               // width: 500,

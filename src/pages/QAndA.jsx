@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Grid,
   FormControl,
@@ -9,91 +9,112 @@ import {
   Box,
   Typography,
   Button,
+  Input,
+  Modal,
+  TextField,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
 import SaveIcon from "@mui/icons-material/Save";
+import axios from "axios";
+import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
+
 import {
   GridRowModes,
   DataGrid,
   GridActionsCellItem,
   GridRowEditStopReasons,
 } from "@mui/x-data-grid";
+import Radio from "@mui/material/Radio";
+// import RadioGroup from "@mui/material/RadioGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import FormLabel from "@mui/material/FormLabel";
+import { useLocation } from "react-router-dom";
+import { PDFViewer } from "@react-pdf/renderer";
+import QuestionPaperPdf from "./QuestionPaperPdf";
+// import ReactPDF from "@react-pdf/renderer";
 
 const roles = ["Market", "Finance", "Development"];
 const randomRole = () => {
   return roles;
 };
 
-const initialRows = [
-  {
-    id: "1",
-    questionAnswers: "supplimentScore.pdf",
-    headerName: "SupplimentScore.pdf.",
-    type: "pdf",
-    generateDate: new Date("10/12/2221"),
-    subject: "math",
-    grade: "A",
-    test: "sampletest1",
-    action: "delete/modify",
-    width: 220,
-  },
+const initialRows = [];
 
-  {
-    id: "2",
-    questionAnswers: "supplimentScore.pdf",
-    headerName: "SupplimentScore.pdf.",
-    type: "pdf",
-    generateDate: new Date("10/12/2221"),
-    subject: "math",
-    grade: "A",
-    test: "sampletest1",
-    action: "delete/modify",
-    width: 220,
-  },
-  {
-    id: "3",
-    questionAnswers: "supplimentScore.pdf",
-    headerName: "SupplimentScore.pdf.",
-    type: "pdf",
-    generateDate: new Date("10/12/2221"),
-    subject: "math",
-    grade: "A",
-    test: "sampletest1",
-    action: "delete/modify",
-    width: 220,
-  },
-  {
-    id: "4",
-    questionAnswers: "supplimentScore.pdf",
-    headerName: "SupplimentScore.pdf.",
-    type: "pdf",
-    generateDate: new Date("10/12/2221"),
-    subject: "math",
-    grade: "A",
-    test: "sampletest1",
-    action: "delete/modify",
-    width: 220,
-  },
-  {
-    id: "5",
-    questionAnswers: "supplimentScore.pdf",
-    headerName: "SupplimentScore.pdf.",
-    type: "pdf",
-    generateDate: new Date("10/12/2221"),
-    subject: "math",
-    grade: "A",
-    test: "sampletest1",
-    action: "delete/modify",
-    width: 220,
-  },
-];
+const baseApiUrl = "http://localhost:5000";
+const start_test = async (doc_id, test, mcqCount, shortCount, longCount) => {
+  if (!doc_id) {
+    console.error("doc-id is mandatory");
+    return;
+  }
+  const res = await axios.get(
+    `${baseApiUrl}/start-test/${doc_id}?test_name=${test}&mcq_count=${mcqCount}&shortques_count=${shortCount}&longques_count=${longCount}`
+  );
+  // open_questions(doc_id);
+
+  console.log("RESPONSE", res.data);
+
+  return res.data;
+};
+const getTests = async () => {
+  const res = await axios.get(`${baseApiUrl}/question-test`);
+  return res.data;
+};
+
+const getQuestions = async (testId) => {
+  const response = await axios.get(
+    `http://localhost:5000/question-list/${testId}`,
+    {}
+  );
+
+  return response.data;
+};
+
+const modalRootStyle = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: "80%",
+  bgcolor: "background.paper",
+  border: "2px solid #000",
+  boxShadow: 24,
+  p: 4,
+};
 
 export default function QAndA() {
   const [subject, setSubject] = React.useState("");
   const [grade, setGrade] = React.useState("");
   const [test, setTest] = React.useState("");
+  const [rows, setRows] = React.useState([]);
+  const [generatingTest, setGeneratingTest] = React.useState(false);
+  const [questionPDFOpen, setQuestionPDFOpen] = React.useState(false);
+  const [activeTestQuestions, setActiveTestQuestions] = React.useState([]);
+  const [mcqCount, setMcqCount] = React.useState(10);
+  const [shortCount, setShortCount] = React.useState(10);
+  const [longCount, setLongCount] = React.useState(10);
+
+  const { state } = useLocation();
+  useEffect(() => {
+    console.log("doc", state);
+    if (state && state.doc) {
+      const doc = state.doc;
+      setSubject(doc.subject);
+      setGrade(doc.grade);
+    }
+  }, [state]);
+
+  useEffect(() => {
+    fetchTests();
+  }, []);
+  // const {  } = doc;
+
+  const fetchTests = async () => {
+    const tests = await getTests();
+    setRows(tests.test_questions);
+    console.log("testing ", tests);
+  };
 
   const handleSubjectChange = (event) => {
     setSubject(event.target.value);
@@ -106,12 +127,49 @@ export default function QAndA() {
   const handleTestChange = (event) => {
     setTest(event.target.value);
   };
+  const clearTestFields = () => {
+    setTest("");
+  };
+  const handleMcqCount = (event) => {
+    setMcqCount(event.target.value);
+  };
+  const handleShortCount = (event) => {
+    setShortCount(event.target.value);
+  };
+  const handleLongCount = (event) => {
+    setLongCount(event.target.value);
+  };
+
+  const handleStartTest = async () => {
+    setGeneratingTest(true);
+    try {
+      await start_test(state?.doc?.id, test, mcqCount, shortCount, longCount);
+      //  const res = await start_test(state?.doc?.id, test);
+      //  const pdfStream = await ReactPDF.renderToStream(<MyDocument />);
+      //  pdfStream.readable
+      clearTestFields();
+    } finally {
+      setGeneratingTest(false);
+    }
+    fetchTests();
+  };
+
+  const handlePDFGeneration = async (testId) => {
+    const { questions } = await getQuestions(testId);
+    setActiveTestQuestions(questions);
+    setQuestionPDFOpen(true);
+  };
+  const questionAndanswer = ()=>{
+    return state?.doc?.doc_name
+  }
+
+  console.log("ROWS", rows);
 
   return (
     <Box display={"flex"} flexDirection={"column"} gap={4}>
       <strong>Generate Test Questions and Answers</strong>
       <Paper>
-        <Grid padding={3} container justifyContent={"space-between"} gap={1}>
+        <Grid padding={3} container justifyContent={"space-between"} gap={3}>
           <Grid item md={3}>
             <FormControl fullWidth>
               <InputLabel id="subject-label">Select Subject</InputLabel>
@@ -146,18 +204,42 @@ export default function QAndA() {
           </Grid>
           <Grid item md={3}>
             <FormControl fullWidth>
-              <InputLabel id="test-label">Select Test</InputLabel>
-              <Select
-                labelId="test-label"
-                id="test-select"
-                value={test}
-                label="Select Test"
+              <TextField
+                label="Test Name"
                 onChange={handleTestChange}
-              >
-                <MenuItem value="A">Test-A</MenuItem>
-                <MenuItem value="B">Test-B</MenuItem>
-                <MenuItem value="C">Test-C</MenuItem>
-              </Select>
+                value={test}
+              />
+            </FormControl>
+          </Grid>
+
+          <Grid item md={3}>
+            <FormControl fullWidth>
+              <TextField
+                type="number"
+                label=" MCQ"
+                onChange={handleMcqCount}
+                value={mcqCount}
+              />
+            </FormControl>
+          </Grid>
+          <Grid item md={3}>
+            <FormControl fullWidth>
+              <TextField
+                type="number"
+                label="Short Questions"
+                onChange={handleShortCount}
+                value={shortCount}
+              />
+            </FormControl>
+          </Grid>
+          <Grid item md={3}>
+            <FormControl fullWidth>
+              <TextField
+                type="number"
+                label="Long Questions"
+                onChange={handleLongCount}
+                value={longCount}
+              />
             </FormControl>
           </Grid>
         </Grid>
@@ -165,29 +247,23 @@ export default function QAndA() {
           <Grid container padding={3} justifyContent={"space-between"} gap={1}>
             <Grid item md={3}>
               <Grid container>
-                <Grid md={6}>
-                  <Typography fontWeight={600}>Take it online.</Typography>
-                </Grid>
-                <Grid md={6}>
-                  <Button variant={"contained"}>Start Test</Button>
-                </Grid>
+                <FormControl>
+                  <FormLabel id="demo-row-radio-buttons-group-label">
+                    {/* <strong>Questions:</strong> */}
+                  </FormLabel>
+                </FormControl>
               </Grid>
             </Grid>
-            <Grid md={3}>
-              <Box>
-                <Typography fontWeight={600}>
-                  Supplemental Scoring Test Review Questions And Answers
-                </Typography>
-              </Box>
-              <Box display={"flex"} justifyContent={"space-between"}>
-                <Button variant={"contained"}>Generate</Button>
-                <Button variant={"contained"}>Clear</Button>
-              </Box>
-            </Grid>
+            <Grid md={3}></Grid>
             <Grid md={3}>
               <Box display={"flex"} justifyContent={"space-between"}>
-                <Button variant={"contained"}>Questions</Button>
-                <Button variant={"contained"}>Answers</Button>
+                <Button
+                  disabled={generatingTest}
+                  variant={"contained"}
+                  onClick={() => handleStartTest()}
+                >
+                  Generate Test
+                </Button>
               </Box>
             </Grid>
           </Grid>
@@ -212,10 +288,12 @@ export default function QAndA() {
                 fontWeight: 600,
               },
             }}
-            rows={initialRows}
+            // rows={initialRows}
+            rows={rows}
             columns={[
               {
-                field: "questionAnswers",
+                // field: state.doc.doc_name,
+                valueGetter: questionAndanswer,
                 headerName: "Questions And Answers ",
                 width: 190,
                 editable: true,
@@ -230,9 +308,9 @@ export default function QAndA() {
                 editable: true,
               },
               {
-                field: "generateDate",
+                field: "generated_date",
                 headerName: "Generate Date",
-                type: "date",
+                type: "text",
                 width: 120,
                 editable: true,
               },
@@ -277,7 +355,13 @@ export default function QAndA() {
                       label="Delete"
                       color="inherit"
                     />,
-                    <Button variant={"contained"}>Start Test</Button>,
+                    <GridActionsCellItem
+                      icon={<PictureAsPdfIcon />}
+                      onClick={() => handlePDFGeneration(id)}
+                      label="pdf"
+                      color="inherit"
+                    />,
+                    // <Button variant={"contained"}>Generate Pdf</Button>,
                   ];
                 },
               },
@@ -292,6 +376,23 @@ export default function QAndA() {
           />
         </Box>
       </Paper>
+      <Modal
+        open={questionPDFOpen}
+        onClose={() => setQuestionPDFOpen(false)}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box
+          sx={modalRootStyle}
+          width={"80%"}
+          display={"flex"}
+          justifyContent={"center"}
+        >
+          <PDFViewer width={"100%"} height={"600px"}>
+            <QuestionPaperPdf questions={activeTestQuestions} />
+          </PDFViewer>
+        </Box>
+      </Modal>
     </Box>
   );
 }

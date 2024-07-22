@@ -23,6 +23,7 @@ import {
   GridRowEditStopReasons,
 } from "@mui/x-data-grid";
 import axios from "axios";
+import PageviewIcon from "@mui/icons-material/Pageview";
 import { useNavigate } from "react-router-dom";
 
 const roles = ["Market", "Finance", "Development"];
@@ -94,14 +95,12 @@ export default function QAndA() {
   };
 
   const open_questions = (doc_id) => {
-    navigate(`/generatetest/${doc_id}`);
+    // navigate(`/generatetest/${doc_id}`);
   };
 
-  const start_test = async (doc_id) => {
-    const res = await axios.get(`http://localhost:5000/start-test/${doc_id}`);
-    open_questions(doc_id);
-
-    console.log("RESPONSE", res.data);
+  const view_file = (doc) => {
+    console.log("doc file ", doc);
+    navigate("/question-and-answers/", { state:{doc} });
   };
 
   const handleFileUpload = (event) => {
@@ -141,6 +140,9 @@ export default function QAndA() {
       if (response.data.status === "ok") {
         alert("File uploaded successfully");
         fetchDocuments();
+         setSubject("");
+         setGrade("");
+         setUploadedFile(null);
       } else {
         alert("File upload failed: " + response.data.msg);
       }
@@ -306,22 +308,24 @@ export default function QAndA() {
                     color="inherit"
                     onClick={handleDeleteClick(rows.find((r) => r.id === id))}
                   />,
-                  row.test_generated ? (
-                    <Button
-                      variant={"contained"}
-                      onClick={() => open_questions(id)}
-                    >
-                      See Questions
-                    </Button>
-                  ) : (
-                    <Button
-                      variant={"contained"}
-                      onClick={() => start_test(id)}
-                    >
-                      Generate Test
-                    </Button>
-                  ),
+                  <Button
+                    variant={"contained"}
+                    //   onClick={() => open_questions(id)}
+                    // >
+                    //   See Questions
+                    onClick={() => view_file(row)}
+                  >
+                    View
+                  </Button>,
                 ],
+                // (
+                //   <Button
+                //     variant={"contained"}
+                //     onClick={() => start_test(id)}
+                //   >
+                //     Generate Test
+                //   </Button>
+                // ),
               },
             ]}
             editMode="row"

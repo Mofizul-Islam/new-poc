@@ -4,14 +4,26 @@ import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 
 import Profile from "./pages/Profile";
-import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Outlet, Navigate } from "react-router-dom";
 import Sidebar from "./components/Sidebar";
 import Material from "./pages/Material";
 import QAndA from "./pages/QAndA";
 import Edit from "./pages/Edit";
-import GeneratedTest from "./pages/GeneratedTest";
+import Test from "./pages/Test";
+// import GeneratedTest from "./pages/GeneratedTest";
+import GenerateTestV2 from "./pages/GenerateTestV2";
 
-function Wrapper() {
+function isLoggedIn(){
+  let data = localStorage.getItem("accessToken")
+  return !!data;
+}
+
+function PrivateRoute() {
+
+  if (!isLoggedIn()) {
+    return <Navigate to={"/SignIn"} />;
+  }
+
   return (
     <Grid container style={{ height: "100%" }}>
       <Grid item md={2}>
@@ -26,7 +38,10 @@ function Wrapper() {
             </Box>
           </Box>
         </AppBar>
-        <Box padding={5} style={{ backgroundColor: "#eef1f6", height: "100%" }}>
+        <Box
+          padding={5}
+          style={{ backgroundColor: "#eef1f6", minHeight: "90vh" }}
+        >
           <Outlet />
         </Box>
       </Grid>
@@ -40,12 +55,16 @@ export default function App() {
       <Routes>
         <Route path="/signin" element={<SignIn />} />
         <Route path="signup" element={<SignUp />} />
-        <Route path="/" element={<Wrapper />}>
+        <Route path="/" element={<PrivateRoute />}>
           <Route path="profile" element={<Profile />} />
           <Route path="material" element={<Material />} />
+          {/* <Route path="question-and-answers/:doc_id" element={<QAndA />} /> */}
           <Route path="question-and-answers" element={<QAndA />} />
           <Route path="edit" element={<Edit />} />
-          <Route path="/generatetest/:doc_id" element={<GeneratedTest />} />
+          <Route path="/test" element={<Test />} />
+
+          {/* <Route path="/generatetest/:doc_id" element={<GeneratedTest />} /> */}
+          <Route path="/generatetest/:doc_id" element={<GenerateTestV2 />} />
         </Route>
       </Routes>
     </BrowserRouter>
