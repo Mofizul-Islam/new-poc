@@ -2,9 +2,15 @@ import { AppBar, Box, Button, Grid } from "@mui/material";
 import "./App.css";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
-
 import Profile from "./pages/Profile";
-import { BrowserRouter, Routes, Route, Outlet, Navigate } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Outlet,
+  Navigate,
+  useNavigate,
+} from "react-router-dom";
 import Sidebar from "./components/Sidebar";
 import Material from "./pages/Material";
 import QAndA from "./pages/QAndA";
@@ -13,15 +19,22 @@ import Test from "./pages/Test";
 // import GeneratedTest from "./pages/GeneratedTest";
 import GenerateTestV2 from "./pages/GenerateTestV2";
 
-function isLoggedIn(){
-  let data = localStorage.getItem("accessToken")
+function isLoggedIn() {
+  let data = localStorage.getItem("accessToken");
   return !!data;
 }
 
-function PrivateRoute() {
+function TeacherRoute() {
+  const navigate = useNavigate();
+
+  const handleLogOut = () => {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("user");
+    navigate("/signin");
+  };
 
   if (!isLoggedIn()) {
-    return <Navigate to={"/SignIn"} />;
+    return <Navigate to={"/signin"} />;
   }
 
   return (
@@ -34,7 +47,9 @@ function PrivateRoute() {
           <Box display={"flex"} justifyContent={"space-between"}>
             <Box />
             <Box>
-              <Button style={{ color: "#fff" }}>Logout</Button>
+              <Button style={{ color: "#fff" }} onClick={handleLogOut}>
+                Logout
+              </Button>
             </Box>
           </Box>
         </AppBar>
@@ -55,7 +70,7 @@ export default function App() {
       <Routes>
         <Route path="/signin" element={<SignIn />} />
         <Route path="signup" element={<SignUp />} />
-        <Route path="/" element={<PrivateRoute />}>
+        <Route path="/" element={<TeacherRoute />}>
           <Route path="profile" element={<Profile />} />
           <Route path="material" element={<Material />} />
           {/* <Route path="question-and-answers/:doc_id" element={<QAndA />} /> */}

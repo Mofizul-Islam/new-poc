@@ -34,6 +34,8 @@ export default function SignInSide() {
       if (response.data.status === "success") {
         console.log("login successful")
         localStorage.setItem("accessToken", response.data.access_token);
+
+        localStorage.setItem("user", JSON.stringify(response.data.user));
         // alert("Login successful");
          navigate("/profile");
       } else {

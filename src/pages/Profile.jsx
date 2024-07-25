@@ -11,8 +11,22 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import "./Profile.css";
+import { updateUserProfile, getUserProfile } from "../api/profile";
+
+/**
+ * @returns {{email: string}}
+ */
+function getUser() {
+  const userJSON = localStorage.getItem("user");
+  return JSON.parse(userJSON);
+}
 
 export default function FormPropsTextFields() {
+  const [firstName, setFirstName] = React.useState("");
+  const [lastName, setLastName] = React.useState("");
+  const [email, setEmail] = React.useState("");
+  const [cellNumber, setCellNumber] = React.useState(null);
+  const [address, setAddress] = React.useState("");
   const [city, setCity] = React.useState("");
   const [country, setCountry] = React.useState("");
   const [zipCode, setZipCode] = React.useState("");
@@ -20,7 +34,45 @@ export default function FormPropsTextFields() {
   const [subject, setSubject] = React.useState("");
   const [grade, setGrade] = React.useState("");
   const [school, setSchool] = React.useState("");
-  const [experience, setExperience] = React.useState("");
+  const [schoolCode, setSchoolCode] = React.useState(null);
+  const [experience, setExperience] = React.useState(null);
+
+  React.useEffect(() => {
+    getUserProfile().then((profileData) => {
+      setFirstName(profileData.first_name);
+      setLastName(profileData.last_name);
+      const user = getUser();
+      setEmail(user.email);
+      setCellNumber(profileData.cell_number);
+      setAddress(profileData.address);
+      setCity(profileData.city);
+      setCountry(profileData.country);
+      setZipCode(profileData.zip_code);
+      setQualification(profileData.qualification);
+      setSubject(profileData.subject);
+      setGrade(profileData.grade);
+      setSchool(profileData.school_name);
+      setSchoolCode(profileData.school_code);
+      setExperience(profileData.experience);
+    });
+  }, []);
+
+  const handleFirstNameChange = (e) => {
+    setFirstName(e.target.value);
+  };
+  const handleLastNameChange = (e) => {
+    setLastName(e.target.value);
+  };
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
+  };
+  const handleCellNumberChange = (e) => {
+    setCellNumber(e.target.value);
+  };
+
+  const handleAddressChange = (e) => {
+    setAddress(e.target.value);
+  };
 
   const handleCityChange = (event) => {
     setCity(event.target.value);
@@ -49,9 +101,30 @@ export default function FormPropsTextFields() {
   const handleChangeChange = (event) => {
     setSchool(event.target.value);
   };
+  const handleSchoolCodeChange = (e) => {
+    setSchoolCode(e.target.value);
+  };
 
   const handleExperienceChange = (event) => {
     setExperience(event.target.value);
+  };
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    updateUserProfile({
+      first_name: firstName,
+      last_name: lastName,
+      cell_number: cellNumber,
+      address: address,
+      city: city,
+      country: country,
+      zip_code: zipCode,
+      qualification: qualification,
+      subject: subject,
+      grade: grade,
+      school_name: school,
+      school_code: schoolCode,
+      experience: experience,
+    });
   };
 
   return (
@@ -78,6 +151,8 @@ export default function FormPropsTextFields() {
               label="First Name"
               type="text"
               autoComplete="given-name"
+              value={firstName}
+              onChange={handleFirstNameChange}
             />
           </Grid>
           <Grid md={4}>
@@ -88,6 +163,8 @@ export default function FormPropsTextFields() {
               label="Last Name"
               type="text"
               autoComplete="family-name"
+              value={lastName}
+              onChange={handleLastNameChange}
             />
           </Grid>
           <Grid md={4}>
@@ -98,6 +175,9 @@ export default function FormPropsTextFields() {
               label="Email"
               type="email"
               autoComplete="email"
+              value={email}
+              disabled
+              onChange={handleEmailChange}
             />
           </Grid>
           <Grid md={4}>
@@ -108,6 +188,8 @@ export default function FormPropsTextFields() {
               label="Cell Number"
               type="tel"
               autoComplete="tel"
+              value={cellNumber ?? ""}
+              onChange={handleCellNumberChange}
             />
           </Grid>
           <Grid md={8}>
@@ -118,6 +200,8 @@ export default function FormPropsTextFields() {
               label="Address"
               type="text"
               autoComplete="address-line1"
+              value={address}
+              onChange={handleAddressChange}
             />
           </Grid>
           <Grid md={4}>
@@ -248,6 +332,8 @@ export default function FormPropsTextFields() {
                 label="School Code"
                 type="school"
                 autoComplete="school"
+                value={schoolCode?? ""}
+                onChange={handleSchoolCodeChange}
               />
             </FormControl>
           </Grid>
@@ -257,13 +343,13 @@ export default function FormPropsTextFields() {
               <Select
                 labelId="experience-label"
                 id="select-experience"
-                value={experience}
+                value={experience ?? ""}
                 label="Year Of Experience"
                 onChange={handleExperienceChange}
               >
-                <MenuItem value="A">5</MenuItem>
-                <MenuItem value="B">6</MenuItem>
-                <MenuItem value="C">7</MenuItem>
+                <MenuItem value="5">5</MenuItem>
+                <MenuItem value="6">6</MenuItem>
+                <MenuItem value="7">7</MenuItem>
               </Select>
             </FormControl>
           </Grid>
@@ -294,7 +380,9 @@ export default function FormPropsTextFields() {
 
           <Grid md={4}>
             <Box display={"flex"} justifyContent={"space-between"}>
-              <Button variant="contained">Submit</Button>
+              <Button variant="contained" onClick={handleSubmit}>
+                Submit
+              </Button>
               <Button variant="contained" color="success">
                 Clear
               </Button>
