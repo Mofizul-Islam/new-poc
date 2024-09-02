@@ -14,11 +14,12 @@ import Typography from "@mui/material/Typography";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { BASE_URL } from "../api/constants";
 
 const defaultTheme = createTheme();
 
 export default function SignInSide() {
-   const navigate = useNavigate();
+  const navigate = useNavigate();
   const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -26,20 +27,20 @@ export default function SignInSide() {
     const password = data.get("password");
 
     try {
-      const response = await axios.post("http://localhost:5000/signin", {
+      const response = await axios.post(`${BASE_URL}signin`, {
         email,
         password,
       });
 
       if (response.data.status === "success") {
-        console.log("login successful")
+        console.log("login successful");
         localStorage.setItem("accessToken", response.data.access_token);
 
         localStorage.setItem("user", JSON.stringify(response.data.user));
         // alert("Login successful");
-         navigate("/profile");
+        navigate("/profile");
       } else {
-        console.log("response message")
+        console.log("response message");
         // alert(response.data.message);
       }
     } catch (error) {
@@ -58,8 +59,7 @@ export default function SignInSide() {
           sm={4}
           md={7}
           sx={{
-            backgroundImage:
-              "url(https://c4.wallpaperflare.com/wallpaper/131/774/322/background-pictures-nature-hd-images-1920x1200-wallpaper-preview.jpg)",
+            backgroundImage: "url(/images/background1.png)",
             backgroundRepeat: "no-repeat",
             backgroundColor: (t) =>
               t.palette.mode === "light"

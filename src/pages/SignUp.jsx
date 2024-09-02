@@ -12,12 +12,12 @@ import Typography from "@mui/material/Typography";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-
+import { BASE_URL } from "../api/constants";
 
 const defaultTheme = createTheme();
 
 export default function SignUpSide() {
-     const navigate = useNavigate();
+  const navigate = useNavigate();
   const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -25,21 +25,21 @@ export default function SignUpSide() {
     const password = data.get("password");
 
     try {
-      const response = await axios.post("http://localhost:5000/signup", {
+      const response = await axios.post(`${BASE_URL}signup`, {
         email,
         password,
       });
 
       if (response.data.status === "success") {
         // alert("User created successfully");
-         navigate("/signin");
+        navigate("/signin");
       } else {
-        console.log("response message")
+        console.log("response message");
         // alert(response.data.message);
       }
     } catch (error) {
       console.error("Error Creating the user!", error);
-    //   alert("Error creating the user!");
+      //   alert("Error creating the user!");
     }
   };
 
@@ -53,8 +53,7 @@ export default function SignUpSide() {
           sm={4}
           md={7}
           sx={{
-            backgroundImage:
-              "url(https://img.freepik.com/free-photo/painting-mountain-lake-with-mountain-background_188544-9126.jpg)",
+            backgroundImage: "url(/images/background1.png)",
             backgroundRepeat: "no-repeat",
             backgroundColor: (t) =>
               t.palette.mode === "light"

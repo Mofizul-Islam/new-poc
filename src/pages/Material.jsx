@@ -25,6 +25,7 @@ import {
 import axios from "axios";
 import PageviewIcon from "@mui/icons-material/Pageview";
 import { useNavigate } from "react-router-dom";
+import { BASE_URL } from "../api/constants";
 
 const roles = ["Market", "Finance", "Development"];
 const randomRole = () => {
@@ -45,7 +46,7 @@ export default function QAndA() {
 
   const fetchDocuments = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/docs", {});
+      const response = await axios.get(`${BASE_URL}docs`, {});
       if (response.data) {
         setRows(
           response.data.file_list.map((f) => ({
@@ -100,7 +101,7 @@ export default function QAndA() {
 
   const view_file = (doc) => {
     console.log("doc file ", doc);
-    navigate("/question-and-answers/", { state:{doc} });
+    navigate("/question-and-answers/", { state: { doc } });
   };
 
   const handleFileUpload = (event) => {
@@ -127,22 +128,18 @@ export default function QAndA() {
     formData.append("grade", grade);
 
     try {
-      const response = await axios.post(
-        "http://localhost:5000/doc-upload",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const response = await axios.post(`${BASE_URL}doc-upload`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       if (response.data.status === "ok") {
         alert("File uploaded successfully");
         fetchDocuments();
-         setSubject("");
-         setGrade("");
-         setUploadedFile(null);
+        setSubject("");
+        setGrade("");
+        setUploadedFile(null);
       } else {
         alert("File upload failed: " + response.data.msg);
       }

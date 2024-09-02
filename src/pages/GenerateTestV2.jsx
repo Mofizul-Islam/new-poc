@@ -23,6 +23,7 @@ import {
   randomCommodity,
 } from "@mui/x-data-grid-generator";
 import { Icon, IconButton } from "@mui/material";
+import { BASE_URL } from "../api/constants";
 
 const questionTypes = {
   long_question: "Long Question",
@@ -54,11 +55,11 @@ function DetailPanelContent({ row }) {
             {
               label: "Answer",
               value: row.answer,
-            //   printIf: (row) =>
-            //     row.type === "long_question" ||
-            //     row.type === "short_question",
-                //  ||
-                // row.type === "mcq",
+              //   printIf: (row) =>
+              //     row.type === "long_question" ||
+              //     row.type === "short_question",
+              //  ||
+              // row.type === "mcq",
               row,
             },
             {
@@ -155,7 +156,7 @@ export default function QAndA() {
   const fetchQuestions = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:5000/question-list/${doc_id}`,
+        `${BASE_URL}question-list/${doc_id}`,
         {}
       );
       if (response.data) {

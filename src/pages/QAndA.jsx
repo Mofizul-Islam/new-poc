@@ -33,6 +33,7 @@ import FormLabel from "@mui/material/FormLabel";
 import { useLocation } from "react-router-dom";
 import { PDFViewer } from "@react-pdf/renderer";
 import QuestionPaperPdf from "./QuestionPaperPdf";
+import { BASE_URL } from "../api/constants";
 // import ReactPDF from "@react-pdf/renderer";
 
 const roles = ["Market", "Finance", "Development"];
@@ -42,7 +43,7 @@ const randomRole = () => {
 
 const initialRows = [];
 
-const baseApiUrl = "http://localhost:5000";
+const baseApiUrl = BASE_URL;
 const start_test = async (doc_id, test, mcqCount, shortCount, longCount) => {
   if (!doc_id) {
     console.error("doc-id is mandatory");
@@ -63,10 +64,7 @@ const getTests = async () => {
 };
 
 const getQuestions = async (testId) => {
-  const response = await axios.get(
-    `http://localhost:5000/question-list/${testId}`,
-    {}
-  );
+  const response = await axios.get(`${BASE_URL}question-list/${testId}`, {});
 
   return response.data;
 };

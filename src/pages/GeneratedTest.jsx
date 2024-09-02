@@ -12,6 +12,7 @@ import axios from "axios";
 import { DataGrid, } from "@mui/x-data-grid";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { BASE_URL } from "../api/constants";
 
 const questionTypes = {
   long_question: "Long Question",
@@ -25,7 +26,7 @@ export default function QAndA() {
   const fetchQuestions = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:5000/question-list/${doc_id}`,
+        `${BASE_URL}question-list/${doc_id}`,
         {}
       );
       if (response.data) {
