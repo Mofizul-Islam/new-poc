@@ -10,6 +10,8 @@ import {
   Outlet,
   Navigate,
   useNavigate,
+  createHashRouter,
+  HashRouter,
 } from "react-router-dom";
 import Sidebar from "./components/Sidebar";
 import Material from "./pages/Material";
@@ -66,7 +68,7 @@ function TeacherRoute() {
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Routes>
         <Route path="/signin" element={<SignIn />} />
         <Route path="signup" element={<SignUp />} />
@@ -82,6 +84,6 @@ export default function App() {
           <Route path="/generatetest/:doc_id" element={<GenerateTestV2 />} />
         </Route>
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
